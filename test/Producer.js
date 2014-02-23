@@ -95,6 +95,10 @@ describe("Producer", function(){
       });
     });
     describe("#send", function() {
+      beforeEach(function() {
+        Producer._connectionPool.clear();
+      });
+
       it("should attempt a reconnect on send if disconnected", function(done) {
         var connectionCount = 0;
         sinon.stub(net, "createConnection", function(port, host){
