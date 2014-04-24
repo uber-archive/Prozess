@@ -31,12 +31,12 @@ function closeServer(server, cb){
     callback();
   }
 }
-function testProducer(useConnPool) {
-    describe("Producer with" + (useConnPool ? "" : "out") + " connection pool", function() {
+function testProducer(useConnCache) {
+    describe("Producer with" + (useConnCache ? "" : "out") + " connection cache", function() {
         beforeEach(function(done){
-            Producer.clearConnectionPool();
+            Producer.clearConnectionCache();
             this.producer = new Producer('test', {
-                connectionPool: useConnPool
+                connectionCache: useConnCache
             });
             if (!this.server) {
                 this.server = null;
@@ -103,7 +103,7 @@ function testProducer(useConnPool) {
                     isSetKeepAliveSet.should.equal(true);
                     net.Socket.prototype.setKeepAlive = setKeepAlive;
                 });
-                if (useConnPool) {
+                if (useConnCache) {
                     it("should reuse connections to the same host and port", function(done) {
                         this.server = net.createServer(function(connection) {
                         });
@@ -118,12 +118,12 @@ function testProducer(useConnPool) {
                         }
                         var producer1 = new Producer('test1', {
                             port: 9998,
-                            connectionPool: true
+                            connectionCache: true
                         });
                         producer1.on('connect', onConnect);
                         var producer2 = new Producer('test2', {
                             port: 9998,
-                            connectionPool: true
+                            connectionCache: true
                         });
                         producer2.on('connect', onConnect);
                         producer1.connect();
@@ -158,7 +158,7 @@ function testProducer(useConnPool) {
                     });
                     var that = this;
                     this.producer = new Producer('test', {
-                        connectionPool: useConnPool
+                        connectionCache: useConnCache
                     });
                     this.producer.port = 8544;
 
