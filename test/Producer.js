@@ -1,4 +1,6 @@
 var should = require('should');
+var assert = require('assert');
+var mockSocket = require('./lib/mock_socket');
 var Producer = require('../index').Producer;
 var Message = require('../index').Message;
 var ProduceRequest = require('../index').ProduceRequest;
@@ -320,6 +322,164 @@ function testProducer(useConnCache) {
             that.producer.connect();
           });
         });
+      });
+      describe("With mock sockets", function() {
+        before(function() {
+          mockSocket.install();
+        });
+        after(function() {
+          mockSocket.restore();
+        });
+        beforeEach(function() {
+          mockSocket.socketBehavior = {};
+          mockSocket.openSockets = {};
+          Producer.clearConnectionCache();
+        });
+        it("handles connection failure", function(done) {
+          mockSocket.socketBehavior["localhost:9092"] = {connect: {type: 'error'}};
+          var producer = new Producer("test", {
+            connectionCache: useConnCache
+          });
+          producer.on('error', function(err) {
+            done();
+          });
+          producer.on('connect', function() {
+            done(new Error("should fail"));
+          });
+          producer.connect();
+        });
+        it("handles write failure", function(done) {
+          mockSocket.socketBehavior["localhost:9092"] = {write: {type: 'error'}};
+          var producer = new Producer("test", {
+            connectionCache: useConnCache
+          });
+          producer.on('error', done);
+          producer.on('connect', function() {
+            producer.send("testingtesting", function(err) {
+              if (err) {
+                done();
+              } else {
+                done(true);
+              }
+            });
+          });
+          producer.connect();
+        });
+        it("reconnects on write failure", function(done) {
+          mockSocket.socketBehavior["localhost:9092"] = {write: {type: 'error', single: true}};
+          var producer = new Producer("test", {
+            connectionCache: useConnCache
+          });
+          producer.on('error', done);
+          producer.on('connect', function() {
+            producer.send("testingtesting", done);
+          });
+          producer.connect();
+        });
+        if (useConnCache) {
+          it("should work when two are connecting simultaneously", function(done) {
+            var producer1 = new Producer("test1", {
+              connectionCache: useConnCache
+            });
+            var producer2 = new Producer("test2", {
+              connectionCache: useConnCache
+            });
+            mockSocket.socketBehavior["localhost:9092"] = {
+              connect: {
+                type: 'wait',
+                wait: function(callback) {
+                  // after producer1 started to connect
+                  producer2.on('connect', function() {
+                    producer2.send("testingtesting", done);
+                  });
+                  producer2.on('error', done);
+                  producer2.connect();
+                  callback();
+                }
+              }
+            };
+            producer1.connect();
+          });
+          it("should work when one is connecting while the other reconnects", function(done) {
+            var producer1 = new Producer("test1", {
+              connectionCache: useConnCache
+            });
+            var producer2 = new Producer("test2", {
+              connectionCache: useConnCache
+            });
+            mockSocket.socketBehavior["localhost:9092"] = {
+              write: {
+                type: 'error',
+                single: true
+              },
+              connect: {
+                type: 'series',
+                series: [
+                  {type: 'ok'},
+                  {
+                    type: 'wait',
+                    wait: function(callback) {
+                      // after producer1 started to reconnect
+                      producer2.on('connect', function() {
+                        producer2.send("testingtesting", done);
+                      });
+                      producer2.on('error', done);
+                      producer2.connect();
+                      callback();
+                    }
+                  }
+                ]
+              }
+            };
+            producer1.on('connect', function() {
+              producer1.send("testing", function(err) {
+                assert(!err);
+              });
+            });
+            producer1.connect();
+          });
+          it("should work when one is writing while the other reconnects", function(done) {
+            var producer1 = new Producer("test1", {
+              connectionCache: useConnCache
+            });
+            var producer2 = new Producer("test2", {
+              connectionCache: useConnCache
+            });
+            mockSocket.socketBehavior["localhost:9092"] = {
+              write: {
+                type: 'error',
+                single: true
+              },
+              connect: {
+                type: 'series',
+                series: [
+                  {type: 'ok'},
+                  {
+                    type: 'wait',
+                    wait: function(callback) {
+                      // after producer1 started to reconnect
+                      producer2.send("testingtesting", done);
+                      callback();
+                    }
+                  }
+                ]
+              }
+            };
+            var connected = 0;
+            function onConnect() {
+              ++connected;
+              if (connected === 2) {
+                producer1.send("testing", function(err) {
+                  assert(!err);
+                });
+              }
+            }
+            producer1.on('connect', onConnect);
+            producer2.on('connect', onConnect);
+            producer1.connect();
+            producer2.connect();
+          });
+        }
       });
     });
   });
