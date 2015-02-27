@@ -32,8 +32,11 @@ Producer.prototype.connect = function(){
   this.connection.once('connect', function(){
     that.emit('connect');
   });
-  this.connection.on('error', function(err){
-    if (!!err.message && err.message === 'connect ECONNREFUSED') {
+  this.connection.on('error', function(err) {
+    if (!!err.message && 
+      (err.message === 'connect ECONNREFUSED' ||
+       err.message.indexOf('connect ECONNREFUSED') === 0)
+    ) {
       that.emit('error', err);
     }
   });
