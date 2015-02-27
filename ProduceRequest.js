@@ -1,4 +1,4 @@
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 var Message = require('./Message');
 var Request = require('./Request');
 var _ = require('underscore');

@@ -1,7 +1,7 @@
 var Request = require('../index').Request;
 var should = require('should');
 var binary = require('binary');
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 
 describe("Request", function() {
   describe("toBytes", function() {

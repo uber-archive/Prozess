@@ -1,7 +1,7 @@
 var FetchResponse = require('../index').FetchResponse;
 var Message = require('../index').Message;
 var _ = require('underscore');
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 var should = require('should');
 
 

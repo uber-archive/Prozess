@@ -1,4 +1,4 @@
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 var Request = require('./Request');
 
 var FetchRequest = function(offset, topic, partition, maxMessageSize) {

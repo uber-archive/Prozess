@@ -4,7 +4,7 @@ var Message = require('../index').Message;
 var should = require('should');
 var bignum = require('bignum');
 var _ = require('underscore');
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 
 
 function bufferFromString(str){

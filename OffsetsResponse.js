@@ -1,7 +1,7 @@
 var bignum = require('bignum');
 var binary = require('binary');
 var Response = require('./Response');
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 var _ = require('underscore');
 
 /*

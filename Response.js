@@ -1,5 +1,5 @@
 var binary = require('binary');
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 var Message = require('./Message');
 var _ = require('underscore');
 var assert = require('assert');

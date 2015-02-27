@@ -1,6 +1,6 @@
 var FetchRequest = require('../index').FetchRequest;
 var Request = require('../index').Request;
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 
 var should = require('should');
 describe("#toBytes", function(){

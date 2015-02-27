@@ -1,5 +1,5 @@
 var should = require('should');
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('buffermaker-uber');
 var OffsetsRequest = require('../index').OffsetsRequest;
 
 
