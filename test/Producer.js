@@ -92,7 +92,7 @@ function testProducer(useConnCache) {
           var setKeepAlive = net.Socket.prototype.setKeepAlive;
           net.Socket.prototype.setKeepAlive = function(setting, msecs) {
             isSetKeepAliveSet = true;
-            setKeepAlive(setting, msecs);
+            setKeepAlive.call(this, setting, msecs);
           };
           this.server = net.createServer(function(connection) {
           });
