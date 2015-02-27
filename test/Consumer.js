@@ -160,7 +160,7 @@ describe("Consumer", function(){
           setTimeout(function() { connectionListener(); }, 10);
           return socket;
         });
-        var consumer = new Consumer({topic: "test", port : -1, offset : 1});
+        var consumer = new Consumer({topic: "test", port : 0, offset : 1});
         consumer._setRequestMode("fetch");
         consumer.onFetch(function(err) {
           should.exist(err, 'we should emit an error for oversized messages');
@@ -180,7 +180,7 @@ describe("Consumer", function(){
     describe("invalid port", function(){
       it("calls back with a socket error", function(done){
 
-        var consumer = new Consumer({topic: "test", port : -1});
+        var consumer = new Consumer({topic: "test", port : 0});
         consumer.connect(function(err){
           err.code.should.equal('ECONNREFUSED');
           done();
